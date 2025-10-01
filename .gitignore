@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Serverless
+.serverless/
+.serverless_plugins/
+
+# Environment variables
+.env
+.env.*
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# AWS
+.aws-sam/
+
+# Temporary files
+*.tmp
+.api-url
+.deployment-info
+FINAL_SUMMARY.txt
+DEPLOYMENT_SUCCESS.md
+
+# Test files
+test-results/
+coverage/
+
+# Build artifacts
+dist/
+build/
+*.zip

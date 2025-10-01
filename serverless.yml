@@ -1,0 +1,188 @@
+service: vault22-faq-chatbot
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: us-east-1
+  stage: ${opt:stage, 'dev'}
+  timeout: 30
+  memorySize: 512
+
+  # Environment variables
+  environment:
+    FAQ_BUCKET: ${self:custom.faqBucketName}
+    EMBEDDINGS_FILE: embeddings/faq-embeddings.json
+    MODEL_ID: anthropic.claude-3-haiku-20240307-v1:0
+    EMBED_MODEL_ID: amazon.titan-embed-text-v1
+
+  # IAM role statements
+  iam:
+    role:
+      statements:
+        # Bedrock permissions
+        - Effect: Allow
+          Action:
+            - bedrock:InvokeModel
+          Resource:
+            - arn:aws:bedrock:${self:provider.region}::foundation-model/anthropic.claude-3-haiku-20240307-v1:0
+            - arn:aws:bedrock:${self:provider.region}::foundation-model/amazon.titan-embed-text-v1
+
+        # S3 permissions for FAQ bucket
+        - Effect: Allow
+          Action:
+            - s3:GetObject
+            - s3:PutObject
+            - s3:ListBucket
+          Resource:
+            - arn:aws:s3:::${self:custom.faqBucketName}
+            - arn:aws:s3:::${self:custom.faqBucketName}/*
+
+        # CloudWatch Logs
+        - Effect: Allow
+          Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+          Resource:
+            - arn:aws:logs:${self:provider.region}:*:log-group:/aws/lambda/*
+
+# Custom variables
+custom:
+  faqBucketName: vault22-faq-chatbot-${self:provider.stage}
+
+# Lambda functions
+functions:
+  # Main chatbot function
+  chatbot:
+    handler: lambda-function.handler
+    description: FAQ chatbot that answers questions using Bedrock and S3-stored embeddings
+    events:
+      - http:
+          path: chat
+          method: post
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: false
+      - http:
+          path: chat
+          method: options
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: false
+
+    # Lambda configuration
+    reservedConcurrency: 10  # Limit concurrent executions
+    tags:
+      Project: Vault22
+      Component: FAQ-Chatbot
+      Environment: ${self:provider.stage}
+
+# AWS Resources
+resources:
+  Resources:
+    # S3 Bucket for FAQ documents and embeddings
+    FaqBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.faqBucketName}
+        VersioningConfiguration:
+          Status: Enabled
+        PublicAccessBlockConfiguration:
+          BlockPublicAcls: true
+          BlockPublicPolicy: true
+          IgnorePublicAcls: true
+          RestrictPublicBuckets: true
+        LifecycleConfiguration:
+          Rules:
+            - Id: DeleteOldVersions
+              Status: Enabled
+              NoncurrentVersionExpirationInDays: 30
+        Tags:
+          - Key: Project
+            Value: Vault22
+          - Key: Component
+            Value: FAQ-Chatbot
+          - Key: Environment
+            Value: ${self:provider.stage}
+
+    # S3 Bucket Policy
+    FaqBucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        Bucket: !Ref FaqBucket
+        PolicyDocument:
+          Statement:
+            - Sid: DenyUnencryptedObjectUploads
+              Effect: Deny
+              Principal: '*'
+              Action: s3:PutObject
+              Resource: !Sub '${FaqBucket.Arn}/*'
+              Condition:
+                StringNotEquals:
+                  s3:x-amz-server-side-encryption: AES256
+
+    # CloudWatch Log Group
+    ChatbotLogGroup:
+      Type: AWS::Logs::LogGroup
+      Properties:
+        LogGroupName: /aws/lambda/${self:service}-${self:provider.stage}-chatbot
+        RetentionInDays: 14
+
+  # Stack Outputs
+  Outputs:
+    ChatbotApiUrl:
+      Description: URL of the FAQ Chatbot API
+      Value:
+        Fn::Join:
+          - ''
+          - - 'https://'
+            - Ref: ApiGatewayRestApi
+            - '.execute-api.'
+            - ${self:provider.region}
+            - '.amazonaws.com/'
+            - ${self:provider.stage}
+            - '/chat'
+      Export:
+        Name: ${self:service}-${self:provider.stage}-api-url
+
+    FaqBucketName:
+      Description: Name of the S3 bucket for FAQ documents
+      Value: !Ref FaqBucket
+      Export:
+        Name: ${self:service}-${self:provider.stage}-bucket-name
+
+    FaqBucketArn:
+      Description: ARN of the S3 bucket for FAQ documents
+      Value: !GetAtt FaqBucket.Arn
+      Export:
+        Name: ${self:service}-${self:provider.stage}-bucket-arn
+
+# Package configuration
+package:
+  exclude:
+    - node_modules/**
+    - .git/**
+    - .gitignore
+    - test/**
+    - examples/**
+    - '*.md'
+    - lambda-enhanced.js
+    - document-processor.js
+  include:
+    - lambda-function.js
+
+# Plugins
+plugins:
+  - serverless-offline  # For local testing

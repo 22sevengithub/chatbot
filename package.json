@@ -1,0 +1,42 @@
+{
+  "name": "vault22-faq-chatbot",
+  "version": "1.0.0",
+  "description": "Vault22 FAQ Chatbot using AWS Lambda, Bedrock, and S3 vector storage",
+  "main": "lambda-function.js",
+  "scripts": {
+    "deploy": "serverless deploy --stage dev",
+    "deploy:prod": "serverless deploy --stage prod",
+    "remove": "serverless remove --stage dev",
+    "logs": "serverless logs -f chatbot --tail",
+    "process-faqs": "node process-faqs.js",
+    "process-faqs:upload": "node process-faqs.js --upload",
+    "process-faqs:process": "node process-faqs.js --process",
+    "test": "node test-chatbot.js",
+    "dev": "serverless offline"
+  },
+  "dependencies": {
+    "@aws-sdk/client-bedrock-runtime": "^3.614.0",
+    "@aws-sdk/client-s3": "^3.614.0"
+  },
+  "devDependencies": {
+    "serverless": "^3.40.0",
+    "serverless-offline": "^13.6.0"
+  },
+  "keywords": [
+    "vault22",
+    "chatbot",
+    "faq",
+    "bedrock",
+    "claude",
+    "ai",
+    "lambda",
+    "s3",
+    "vector-search",
+    "rag"
+  ],
+  "author": "Vault22 Team",
+  "license": "PROPRIETARY",
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
