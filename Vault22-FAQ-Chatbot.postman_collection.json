@@ -1,0 +1,393 @@
+{
+	"info": {
+		"_postman_id": "vault22-faq-chatbot",
+		"name": "Vault22 FAQ Chatbot",
+		"description": "API collection for testing the Vault22 FAQ Chatbot powered by AWS Lambda, Bedrock (Claude AI), and S3 Vector Storage.\n\n## Quick Start\n1. Import this collection into Postman\n2. Send requests to test the chatbot\n3. All requests use the deployed endpoint: https://9twtox1bii.execute-api.us-east-1.amazonaws.com/dev/chat\n\n## Response Format\n```json\n{\n  \"answer\": \"AI-generated answer based on FAQ content\",\n  \"sources\": [\n    {\n      \"source\": \"filename.md\",\n      \"category\": \"category name\",\n      \"similarity\": \"0.876\"\n    }\n  ]\n}\n```",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "FAQ Questions",
+			"item": [
+				{
+					"name": "Password Reset",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"question\": \"How do I reset my password?\"\n}"
+						},
+						"url": {
+							"raw": "https://9twtox1bii.execute-api.us-east-1.amazonaws.com/dev/chat",
+							"protocol": "https",
+							"host": [
+								"9twtox1bii",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"chat"
+							]
+						},
+						"description": "Ask how to reset password in Vault22"
+					},
+					"response": []
+				},
+				{
+					"name": "Link Bank Account",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"question\": \"How do I link my bank account?\"\n}"
+						},
+						"url": {
+							"raw": "https://9twtox1bii.execute-api.us-east-1.amazonaws.com/dev/chat",
+							"protocol": "https",
+							"host": [
+								"9twtox1bii",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"chat"
+							]
+						},
+						"description": "Ask how to link a bank account in Vault22"
+					},
+					"response": []
+				},
+				{
+					"name": "Security Information",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"question\": \"Is Vault22 secure?\"\n}"
+						},
+						"url": {
+							"raw": "https://9twtox1bii.execute-api.us-east-1.amazonaws.com/dev/chat",
+							"protocol": "https",
+							"host": [
+								"9twtox1bii",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"chat"
+							]
+						},
+						"description": "Ask about Vault22 security features"
+					},
+					"response": []
+				},
+				{
+					"name": "Pricing Information",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"question\": \"How much does Vault22 cost?\"\n}"
+						},
+						"url": {
+							"raw": "https://9twtox1bii.execute-api.us-east-1.amazonaws.com/dev/chat",
+							"protocol": "https",
+							"host": [
+								"9twtox1bii",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"chat"
+							]
+						},
+						"description": "Ask about Vault22 pricing"
+					},
+					"response": []
+				},
+				{
+					"name": "Supported Banks",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"question\": \"Which banks does Vault22 support?\"\n}"
+						},
+						"url": {
+							"raw": "https://9twtox1bii.execute-api.us-east-1.amazonaws.com/dev/chat",
+							"protocol": "https",
+							"host": [
+								"9twtox1bii",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"chat"
+							]
+						},
+						"description": "Ask which banks are supported by Vault22"
+					},
+					"response": []
+				},
+				{
+					"name": "Investment Features",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"question\": \"Can I invest through Vault22?\"\n}"
+						},
+						"url": {
+							"raw": "https://9twtox1bii.execute-api.us-east-1.amazonaws.com/dev/chat",
+							"protocol": "https",
+							"host": [
+								"9twtox1bii",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"chat"
+							]
+						},
+						"description": "Ask about investment features in Vault22"
+					},
+					"response": []
+				},
+				{
+					"name": "Account Types",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"question\": \"What types of accounts can I add?\"\n}"
+						},
+						"url": {
+							"raw": "https://9twtox1bii.execute-api.us-east-1.amazonaws.com/dev/chat",
+							"protocol": "https",
+							"host": [
+								"9twtox1bii",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"chat"
+							]
+						},
+						"description": "Ask about supported account types"
+					},
+					"response": []
+				},
+				{
+					"name": "Budgeting Features",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"question\": \"How do I create a budget?\"\n}"
+						},
+						"url": {
+							"raw": "https://9twtox1bii.execute-api.us-east-1.amazonaws.com/dev/chat",
+							"protocol": "https",
+							"host": [
+								"9twtox1bii",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"chat"
+							]
+						},
+						"description": "Ask about budgeting features"
+					},
+					"response": []
+				}
+			],
+			"description": "Common FAQ questions about Vault22"
+		},
+		{
+			"name": "Advanced Options",
+			"item": [
+				{
+					"name": "Custom Question with Max Results",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"question\": \"How do I get started with Vault22?\",\n  \"maxResults\": 5\n}"
+						},
+						"url": {
+							"raw": "https://9twtox1bii.execute-api.us-east-1.amazonaws.com/dev/chat",
+							"protocol": "https",
+							"host": [
+								"9twtox1bii",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"chat"
+							]
+						},
+						"description": "Ask a custom question with maxResults parameter (1-10) to control how many FAQ chunks are used for context"
+					},
+					"response": []
+				},
+				{
+					"name": "Custom Question with Context",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"question\": \"What security features does Vault22 have?\",\n  \"maxResults\": 3,\n  \"includeContext\": true\n}"
+						},
+						"url": {
+							"raw": "https://9twtox1bii.execute-api.us-east-1.amazonaws.com/dev/chat",
+							"protocol": "https",
+							"host": [
+								"9twtox1bii",
+								"execute-api",
+								"us-east-1",
+								"amazonaws",
+								"com"
+							],
+							"path": [
+								"dev",
+								"chat"
+							]
+						},
+						"description": "Ask a custom question with includeContext=true to see the actual FAQ chunks used for the answer (useful for debugging)"
+					},
+					"response": []
+				}
+			],
+			"description": "Advanced requests with optional parameters"
+		},
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "OPTIONS",
+				"header": [],
+				"url": {
+					"raw": "https://9twtox1bii.execute-api.us-east-1.amazonaws.com/dev/chat",
+					"protocol": "https",
+					"host": [
+						"9twtox1bii",
+						"execute-api",
+						"us-east-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"dev",
+						"chat"
+					]
+				},
+				"description": "CORS preflight check - should return 200 with CORS headers"
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "https://9twtox1bii.execute-api.us-east-1.amazonaws.com/dev",
+			"type": "string"
+		}
+	]
+}
