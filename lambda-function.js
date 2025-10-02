@@ -40,7 +40,7 @@ exports.handler = async (event) => {
     try {
         // Parse request body
         const body = JSON.parse(event.body || '{}');
-        const { question, maxResults = 3, includeContext = false } = body;
+        const { question } = body;
 
         if (!question || question.trim().length === 0) {
             return corsResponse(400, {
@@ -64,7 +64,7 @@ exports.handler = async (event) => {
         const relevantChunks = findRelevantChunks(
             questionEmbedding,
             faqEmbeddings,
-            maxResults
+            3
         );
 
         // Step 4: Build context from relevant chunks
@@ -73,15 +73,9 @@ exports.handler = async (event) => {
         // Step 5: Generate response using Claude
         const answer = await generateAnswer(question, context);
 
-        // Return response
+        // Return simplified response - just the answer
         return corsResponse(200, {
-            answer: answer,
-            sources: relevantChunks.map(chunk => ({
-                source: chunk.metadata.source,
-                category: chunk.metadata.category,
-                similarity: chunk.similarity.toFixed(3)
-            })),
-            ...(includeContext && { context: context })
+            answer: answer
         });
 
     } catch (error) {
