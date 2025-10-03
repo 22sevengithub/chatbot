@@ -18,7 +18,7 @@ const s3Client = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' })
 // Configuration
 const FAQ_BUCKET = process.env.FAQ_BUCKET || 'vault22-faq-chatbot';
 const EMBEDDINGS_FILE = process.env.EMBEDDINGS_FILE || 'embeddings/faq-embeddings.json';
-const MODEL_ID = process.env.MODEL_ID || 'anthropic.claude-3-5-haiku-20241022-v1:0';
+const MODEL_ID = process.env.MODEL_ID || 'us.anthropic.claude-sonnet-4-5-20250929-v1:0';
 const EMBED_MODEL_ID = process.env.EMBED_MODEL_ID || 'amazon.titan-embed-text-v1';
 
 // Cache for FAQ embeddings (persists across warm Lambda invocations)
