@@ -18,7 +18,7 @@ const s3Client = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' })
 // Configuration
 const FAQ_BUCKET = process.env.FAQ_BUCKET || 'vault22-faq-chatbot';
 const EMBEDDINGS_FILE = process.env.EMBEDDINGS_FILE || 'embeddings/faq-embeddings.json';
-const MODEL_ID = process.env.MODEL_ID || 'anthropic.claude-3-5-haiku-20241022-v1:0';
+const MODEL_ID = process.env.MODEL_ID || 'us.anthropic.claude-sonnet-4-5-20250929-v1:0';
 const EMBED_MODEL_ID = process.env.EMBED_MODEL_ID || 'amazon.titan-embed-text-v1';
 
 // Cache for FAQ embeddings (persists across warm Lambda invocations)
@@ -40,7 +40,7 @@ exports.handler = async (event) => {
     try {
         // Parse request body
         const body = JSON.parse(event.body || '{}');
-        const { question, maxResults = 3, includeContext = false } = body;
+        const { question } = body;
 
         if (!question || question.trim().length === 0) {
             return corsResponse(400, {
@@ -64,7 +64,7 @@ exports.handler = async (event) => {
         const relevantChunks = findRelevantChunks(
             questionEmbedding,
             faqEmbeddings,
-            maxResults
+            3
         );
 
         // Step 4: Build context from relevant chunks
@@ -73,15 +73,9 @@ exports.handler = async (event) => {
         // Step 5: Generate response using Claude
         const answer = await generateAnswer(question, context);
 
-        // Return response
+        // Return simplified response - just the answer
         return corsResponse(200, {
-            answer: answer,
-            sources: relevantChunks.map(chunk => ({
-                source: chunk.metadata.source,
-                category: chunk.metadata.category,
-                similarity: chunk.similarity.toFixed(3)
-            })),
-            ...(includeContext && { context: context })
+            answer: answer
         });
 
     } catch (error) {

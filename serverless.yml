@@ -89,6 +89,77 @@ functions:
       Component: FAQ-Chatbot
       Environment: ${self:provider.stage}
 
+  # Content management function (for Strapi integration)
+  contentManager:
+    handler: content-manager.handler
+    description: Manages chatbot knowledge base content from Strapi
+    timeout: 300  # 5 minutes for embedding generation
+    events:
+      # Upload content
+      - http:
+          path: content/upload
+          method: post
+          cors:
+            origin: '*'
+      - http:
+          path: content/upload
+          method: options
+          cors:
+            origin: '*'
+
+      # Delete content
+      - http:
+          path: content/delete
+          method: post
+          cors:
+            origin: '*'
+      - http:
+          path: content/delete
+          method: options
+          cors:
+            origin: '*'
+
+      # Clear all content
+      - http:
+          path: content/clear
+          method: post
+          cors:
+            origin: '*'
+      - http:
+          path: content/clear
+          method: options
+          cors:
+            origin: '*'
+
+      # Process embeddings
+      - http:
+          path: content/process
+          method: post
+          cors:
+            origin: '*'
+      - http:
+          path: content/process
+          method: options
+          cors:
+            origin: '*'
+
+      # Get status
+      - http:
+          path: content/status
+          method: get
+          cors:
+            origin: '*'
+      - http:
+          path: content/status
+          method: options
+          cors:
+            origin: '*'
+
+    tags:
+      Project: Vault22
+      Component: FAQ-Chatbot-ContentManager
+      Environment: ${self:provider.stage}
+
 # AWS Resources
 resources:
   Resources:

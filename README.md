@@ -208,29 +208,14 @@ export API_URL="https://xxx.execute-api.us-east-1.amazonaws.com/dev/chat"
 # Test with a question
 curl -X POST $API_URL \
   -H "Content-Type: application/json" \
-  -d '{
-    "question": "How do I reset my password?",
-    "maxResults": 3
-  }'
+  -d '{"question": "How do I reset my password?"}'
 ```
 
 ### Expected Response
 
 ```json
 {
-  "answer": "To reset your password in Vault22, follow these steps: 1) Go to Settings > Security, 2) Click 'Change Password', 3) Enter your current password, 4) Enter your new password twice, 5) Click 'Update Password'. Make sure your new password meets the security requirements.",
-  "sources": [
-    {
-      "source": "account_management.md",
-      "category": "Account Management",
-      "similarity": "0.876"
-    },
-    {
-      "source": "security.md",
-      "category": "Security",
-      "similarity": "0.823"
-    }
-  ]
+  "answer": "To reset your password in Vault22, follow these steps: 1) Go to Settings > Security, 2) Click 'Change Password', 3) Enter your current password, 4) Enter your new password twice, 5) Click 'Update Password'. Make sure your new password meets the security requirements."
 }
 ```
 
@@ -254,24 +239,14 @@ serverless logs -f chatbot --tail
 **Request Body:**
 ```json
 {
-  "question": "string (required) - User's question",
-  "maxResults": "number (optional) - Number of FAQ chunks to retrieve (default: 3)",
-  "includeContext": "boolean (optional) - Include raw context in response (default: false)"
+  "question": "string (required) - User's question"
 }
 ```
 
 **Response (Success - 200):**
 ```json
 {
-  "answer": "AI-generated response based on FAQ context",
-  "sources": [
-    {
-      "source": "filename.md",
-      "category": "Category Name",
-      "similarity": "0.XXX"
-    }
-  ],
-  "context": "Raw FAQ content used (if includeContext=true)"
+  "answer": "AI-generated response based on FAQ context"
 }
 ```
 
@@ -483,7 +458,7 @@ class ChatbotService {
     final response = await http.post(
       Uri.parse(apiUrl),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'question': question, 'maxResults': 3}),
+      body: jsonEncode({'question': question}),
     );
 
     if (response.statusCode == 200) {
@@ -503,7 +478,7 @@ async function askChatbot(question) {
   const response = await fetch('https://xxx.execute-api.us-east-1.amazonaws.com/dev/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ question, maxResults: 3 })
+    body: JSON.stringify({ question })
   });
 
   const data = await response.json();
