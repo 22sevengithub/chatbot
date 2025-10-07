@@ -7,15 +7,18 @@
 
 const { BedrockRuntimeClient, InvokeModelCommand } = require('@aws-sdk/client-bedrock-runtime');
 const { S3Client, PutObjectCommand, DeleteObjectCommand, ListObjectsV2Command, GetObjectCommand } = require('@aws-sdk/client-s3');
+const { LambdaClient, UpdateFunctionConfigurationCommand, GetFunctionConfigurationCommand } = require('@aws-sdk/client-lambda');
 
 // Initialize AWS clients
 const bedrockClient = new BedrockRuntimeClient({ region: process.env.AWS_REGION || 'us-east-1' });
 const s3Client = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' });
+const lambdaClient = new LambdaClient({ region: process.env.AWS_REGION || 'us-east-1' });
 
 // Configuration
 const FAQ_BUCKET = process.env.FAQ_BUCKET || 'vault22-faq-chatbot-dev';
 const EMBEDDINGS_FILE = process.env.EMBEDDINGS_FILE || 'embeddings/faq-embeddings.json';
 const EMBED_MODEL_ID = process.env.EMBED_MODEL_ID || 'amazon.titan-embed-text-v1';
+const CHATBOT_FUNCTION_NAME = process.env.CHATBOT_FUNCTION_NAME || 'vault22-faq-chatbot-dev-chatbot';
 const CHUNK_SIZE = 1000;
 const CHUNK_OVERLAP = 200;
 
@@ -282,12 +285,16 @@ async function handleProcessEmbeddings(event) {
 
         console.log('Embeddings saved successfully');
 
+        // Clear chatbot Lambda cache
+        const cacheCleared = await clearChatbotCache();
+
         return corsResponse(200, {
             success: true,
             message: 'Embeddings processed successfully',
             totalFiles: files.length,
             totalChunks,
-            embeddingsFile: `s3://${FAQ_BUCKET}/${EMBEDDINGS_FILE}`
+            embeddingsFile: `s3://${FAQ_BUCKET}/${EMBEDDINGS_FILE}`,
+            cacheCleared
         });
     } catch (error) {
         console.error('Processing error:', error);
@@ -414,6 +421,41 @@ async function streamToString(stream) {
         chunks.push(chunk);
     }
     return Buffer.concat(chunks).toString('utf-8');
+}
+
+/**
+ * Clear chatbot Lambda cache by updating environment variable
+ */
+async function clearChatbotCache() {
+    try {
+        console.log(`Clearing cache for Lambda: ${CHATBOT_FUNCTION_NAME}`);
+
+        // Get current configuration
+        const getConfigCommand = new GetFunctionConfigurationCommand({
+            FunctionName: CHATBOT_FUNCTION_NAME
+        });
+        const currentConfig = await lambdaClient.send(getConfigCommand);
+
+        // Update environment with new cache buster
+        const envVars = currentConfig.Environment?.Variables || {};
+        envVars.CACHE_BUSTER = `${Date.now()}`;
+
+        const updateCommand = new UpdateFunctionConfigurationCommand({
+            FunctionName: CHATBOT_FUNCTION_NAME,
+            Environment: {
+                Variables: envVars
+            }
+        });
+
+        await lambdaClient.send(updateCommand);
+        console.log('Chatbot cache cleared successfully');
+
+        return true;
+    } catch (error) {
+        console.error('Failed to clear chatbot cache:', error);
+        // Don't fail the entire operation if cache clear fails
+        return false;
+    }
 }
 
 /**
