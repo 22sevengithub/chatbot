@@ -48,6 +48,8 @@ exports.handler = async (event) => {
             return await handleProcessEmbeddings(event);
         } else if (path.includes('/content/status') && method === 'GET') {
             return await handleGetStatus(event);
+        } else if (path.includes('/content/update-prompt') && method === 'POST') {
+            return await handleUpdatePrompt(event);
         } else {
             return corsResponse(404, { error: 'Endpoint not found' });
         }
@@ -362,6 +364,71 @@ async function handleGetStatus(event) {
         console.error('Status error:', error);
         return corsResponse(500, {
             error: 'Failed to get status',
+            message: error.message
+        });
+    }
+}
+
+/**
+ * Update chatbot system prompt
+ * POST /content/update-prompt
+ * Body: { prompt: string, maxTokens: number, temperature: number }
+ */
+async function handleUpdatePrompt(event) {
+    const body = JSON.parse(event.body || '{}');
+    const { prompt, maxTokens, temperature } = body;
+
+    if (!prompt || prompt.trim().length === 0) {
+        return corsResponse(400, {
+            error: 'Missing required field: prompt'
+        });
+    }
+
+    // Validate size (4KB AWS limit)
+    if (prompt.length > 3500) {
+        return corsResponse(400, {
+            error: 'Prompt too large',
+            message: 'Maximum prompt size is 3500 characters',
+            currentSize: prompt.length
+        });
+    }
+
+    try {
+        console.log(`Updating system prompt for Lambda: ${CHATBOT_FUNCTION_NAME}`);
+        console.log(`Prompt length: ${prompt.length} characters`);
+
+        // Get current configuration
+        const getConfigCommand = new GetFunctionConfigurationCommand({
+            FunctionName: CHATBOT_FUNCTION_NAME
+        });
+        const currentConfig = await lambdaClient.send(getConfigCommand);
+
+        // Update environment variables
+        const envVars = currentConfig.Environment?.Variables || {};
+        envVars.SYSTEM_PROMPT = prompt;
+        envVars.PROMPT_UPDATED_AT = new Date().toISOString();
+
+        const updateCommand = new UpdateFunctionConfigurationCommand({
+            FunctionName: CHATBOT_FUNCTION_NAME,
+            Environment: {
+                Variables: envVars
+            }
+        });
+
+        const result = await lambdaClient.send(updateCommand);
+        console.log('System prompt updated successfully');
+
+        return corsResponse(200, {
+            success: true,
+            message: 'System prompt updated successfully',
+            promptLength: prompt.length,
+            updatedAt: envVars.PROMPT_UPDATED_AT,
+            functionVersion: result.Version
+        });
+    } catch (error) {
+        console.error('Failed to update system prompt:', error);
+        return corsResponse(500, {
+            error: 'Failed to update system prompt',
             message: error.message
         });
     }

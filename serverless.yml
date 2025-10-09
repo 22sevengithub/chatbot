@@ -14,18 +14,29 @@ provider:
     EMBEDDINGS_FILE: embeddings/faq-embeddings.json
     MODEL_ID: anthropic.claude-3-haiku-20240307-v1:0
     EMBED_MODEL_ID: amazon.titan-embed-text-v1
+    # SYSTEM_PROMPT is set/updated by Content Manager Lambda when changed in Strapi
 
   # IAM role statements
   iam:
     role:
       statements:
-        # Bedrock permissions
+        # Bedrock permissions for foundation models
         - Effect: Allow
           Action:
             - bedrock:InvokeModel
+            - bedrock:InvokeModelWithResponseStream
           Resource:
             - arn:aws:bedrock:${self:provider.region}::foundation-model/anthropic.claude-3-haiku-20240307-v1:0
             - arn:aws:bedrock:${self:provider.region}::foundation-model/amazon.titan-embed-text-v1
+            - arn:aws:bedrock:*::foundation-model/*
+
+        # Bedrock permissions for Global inference profiles (Claude Sonnet 4.5)
+        - Effect: Allow
+          Action:
+            - bedrock:InvokeModel
+            - bedrock:InvokeModelWithResponseStream
+          Resource:
+            - arn:aws:bedrock:*:*:inference-profile/*
 
         # S3 permissions for FAQ bucket
         - Effect: Allow
@@ -45,6 +56,14 @@ provider:
             - logs:PutLogEvents
           Resource:
             - arn:aws:logs:${self:provider.region}:*:log-group:/aws/lambda/*
+
+        # Lambda configuration update permissions (for Content Manager to update chatbot prompt)
+        - Effect: Allow
+          Action:
+            - lambda:GetFunctionConfiguration
+            - lambda:UpdateFunctionConfiguration
+          Resource:
+            - arn:aws:lambda:${self:provider.region}:*:function:${self:service}-${self:provider.stage}-chatbot
 
 # Custom variables
 custom:
@@ -151,6 +170,18 @@ functions:
             origin: '*'
       - http:
           path: content/status
+          method: options
+          cors:
+            origin: '*'
+
+      # Update system prompt
+      - http:
+          path: content/update-prompt
+          method: post
+          cors:
+            origin: '*'
+      - http:
+          path: content/update-prompt
           method: options
           cors:
             origin: '*'
