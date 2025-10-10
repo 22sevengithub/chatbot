@@ -21,6 +21,21 @@ const EMBEDDINGS_FILE = process.env.EMBEDDINGS_FILE || 'embeddings/faq-embedding
 const MODEL_ID = process.env.MODEL_ID || 'us.anthropic.claude-sonnet-4-5-20250929-v1:0';
 const EMBED_MODEL_ID = process.env.EMBED_MODEL_ID || 'amazon.titan-embed-text-v1';
 
+// Default system prompt (fallback)
+const DEFAULT_SYSTEM_PROMPT = `You are a helpful AI assistant for Vault22, a financial management app.
+Answer user questions based on the FAQ knowledge base context provided.
+
+IMPORTANT GUIDELINES:
+1. Only use information from the provided FAQ context
+2. If the context does not contain relevant information, clearly state: "I don't have that information in my knowledge base. Please contact support for help."
+3. Be concise and friendly (2-4 sentences)
+4. Reference the FAQ section when helpful (e.g., "According to the Account Setup guide...")
+5. Never make up information not in the context
+6. For sensitive topics like security or financial advice, recommend contacting support`;
+
+// System prompt from environment variable (updated by Content Manager Lambda when changed in Strapi)
+const SYSTEM_PROMPT = process.env.SYSTEM_PROMPT || DEFAULT_SYSTEM_PROMPT;
+
 // Cache for FAQ embeddings (persists across warm Lambda invocations)
 let embeddingsCache = null;
 let cacheTimestamp = 0;
@@ -70,7 +85,7 @@ exports.handler = async (event) => {
         // Step 4: Build context from relevant chunks
         const context = buildContext(relevantChunks);
 
-        // Step 5: Generate response using Claude
+        // Step 5: Generate response using Claude with system prompt from env var
         const answer = await generateAnswer(question, context);
 
         // Return simplified response - just the answer
@@ -214,18 +229,11 @@ function buildContext(chunks) {
 
 /**
  * Generate answer using Claude with RAG context
+ * System prompt comes from environment variable (updated by Content Manager Lambda)
  */
 async function generateAnswer(question, context) {
     try {
-        const prompt = `You are a helpful AI assistant for Vault22, a financial management app.
-Answer the user's question based on the following FAQ knowledge base context.
-
-IMPORTANT INSTRUCTIONS:
-1. Only use information from the provided context
-2. If the context doesn't contain relevant information, say so clearly
-3. Be concise but helpful (2-4 sentences)
-4. If appropriate, mention which section of the FAQ you're referencing
-5. Never make up information not in the context
+        const prompt = `${SYSTEM_PROMPT}
 
 FAQ CONTEXT:
 ${context}
